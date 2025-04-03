@@ -24,7 +24,15 @@ class XlsxDownloader implements Downloader
         $fileName = $export->file_name . '.xlsx';
 
         if ($disk->exists($filePath = $directory . DIRECTORY_SEPARATOR . $fileName)) {
-            return $disk->download($filePath);
+            $response = $disk->download($filePath);
+
+            if (ob_get_length() > 0) {
+                ob_end_clean();
+            }
+
+            $response->headers->set('X-Vapor-Base64-Encode', 'True');
+
+            return $response;
         }
 
         $writer = app(Writer::class);
